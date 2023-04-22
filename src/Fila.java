@@ -51,42 +51,49 @@ public class Fila {
         return head;
     }
 
-    public boolean checarPrioridade() {
+    public String checarPrioridade() {
         // checar um aviao que necessite de prioridade e remove-o
         Aviao current = this.head;
         if (current.getCombustivel() <= 1) {
             tempo_total_esperando += head.getTempo_esperando();
+            String removido = "\u001B[31m"+"REMOVIDO: "+head+"\u001B[0m";
             head = head.getNext();
             this.tamanho--;
             this.totalAvioes_com_prioridade--;
-            return true;
+            return removido;
         }
         while (current != null) {
             if (current.getNext() != null) {
                 if (current.getNext().getCombustivel() <= 1) {
                     tempo_total_esperando += current.getNext().getTempo_esperando();
+                    String removido = "\u001B[31m"+"REMOVIDO: "+current.getNext()+"\u001B[0m";
                     current.setNext(current.getNext().getNext());
                     this.tamanho--;
                     this.totalAvioes_com_prioridade--;
-                    return true;
+                    return removido;
                 }
             }
             current = current.getNext();
         }
-        return false;
+        return "";
     }
 
     public boolean remover() {
+        if (is_empty()){
+            return false;
+        }
         // remove primeiro da fila se não tiver ninguem prioritario
         // retorna true or false para calculo total prioridade
-        boolean cheque_prioritario;
+        String cheque_prioritario;
         if (tipo.equals("ATE")) {
             cheque_prioritario = checarPrioridade();
+            System.out.println(cheque_prioritario);
         } else {
-            cheque_prioritario = false;
+            cheque_prioritario = "";
         }
-        if (!cheque_prioritario) {
+        if (cheque_prioritario.equals("")) {
             tempo_total_esperando += head.getTempo_esperando();
+            System.out.println("\u001B[31m"+"REMOVIDO: "+head+"\u001B[0m");
             head = head.getNext();
             this.tamanho--;
             return false;
@@ -99,6 +106,9 @@ public class Fila {
     }
 
     public String show_fila() {
+        if (is_empty()){
+            return "";
+        }
         Aviao current = this.head;
         String texto = "";
         while (current != null) {
@@ -109,13 +119,19 @@ public class Fila {
     }
 
     public void passar_tempo() {
-        // passar o tempo para todos os aviões consumindo combustivel
+        if (is_empty()){
+            return;
+        }
+        // passar o tempo para todos os aviões
         Aviao current = this.head;
         while (current != null) {
-            current.setCombustivel(current.getCombustivel() - 1);
-            // checar prioridade
-            if (current.getCombustivel() <= 2){
-                this.totalAvioes_com_prioridade++;
+            // se for uma fila de aterrisagem
+            if (this.tipo.equals("ATE")) {
+                current.setCombustivel(current.getCombustivel() - 1);
+                // checar prioridade
+                if (current.getCombustivel() <= 2) {
+                    this.totalAvioes_com_prioridade++;
+                }
             }
             current.setTempo_esperando(current.getTempo_esperando() + 1);
             current = current.getNext();
@@ -124,7 +140,15 @@ public class Fila {
 
     public int tempo_medio_espera() {
         // tempo que demora para um aviao com um combustivel
-        return tempo_total_esperando / totalAvioes;
+        if (totalAvioes > 0) {
+            return tempo_total_esperando / totalAvioes;
+        } else {
+            return 0;
+        }
+    }
+
+    public boolean is_empty(){
+        return this.head == null;
     }
 
     public String getTipo() {
@@ -137,5 +161,9 @@ public class Fila {
 
     public int getTamanho() {
         return tamanho;
+    }
+
+    public int getTotalAvioes_com_prioridade() {
+        return totalAvioes_com_prioridade;
     }
 }
