@@ -71,6 +71,7 @@ public class Main {
             }
             // passar tempo apenas nos que estão no ar, aterrisagem
             fila_aterrisagem.passar_tempo();
+            System.out.println();
             //
             limpaTela();
         }
